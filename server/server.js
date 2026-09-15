@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const authRoutes = require("./routes/authRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -9,7 +10,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/auth", authRoutes);
+
 // Test route
+
 app.get("/", (req, res) => {
     res.send("Alumni Connect Backend is running!");
 });
