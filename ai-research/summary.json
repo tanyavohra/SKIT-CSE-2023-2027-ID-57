@@ -1,0 +1,267 @@
+{
+  "studentProfiles": [
+    {
+      "id": "stu_001",
+      "fullName": "Alice Johnson",
+      "branch": "Computer Science",
+      "graduationYear": 2027,
+      "skills": ["Python", "React", "Node.js", "MongoDB", "HTML/CSS"],
+      "interests": ["Web Development", "Full-Stack Development", "Cloud Computing"],
+      "location": "Delhi NCR",
+      "experienceLevel": "Final Year",
+      "jobPreference": "Full-time"
+    },
+    {
+      "id": "stu_002",
+      "fullName": "Bob Patel",
+      "branch": "Information Technology",
+      "graduationYear": 2027,
+      "skills": ["Java", "Spring Boot", "MySQL", "Angular"],
+      "interests": ["Backend Development", "Microservices", "Database Design"],
+      "location": "Bangalore",
+      "experienceLevel": "Pre-Final Year",
+      "jobPreference": "Internship"
+    },
+    {
+      "id": "stu_003",
+      "fullName": "Charlie Singh",
+      "branch": "Computer Science",
+      "graduationYear": 2027,
+      "skills": ["Python", "TensorFlow", "PyTorch", "Pandas", "NumPy"],
+      "interests": ["AI/ML", "Data Science", "Research"],
+      "location": "Mumbai",
+      "experienceLevel": "Final Year",
+      "jobPreference": "Full-time"
+    }
+  ],
+  "alumniProfiles": [
+    {
+      "id": "al_001",
+      "fullName": "Rahul Sharma",
+      "batchYear": 2023,
+      "branch": "Computer Science",
+      "currentCompany": "Google",
+      "currentRole": "Software Engineer",
+      "skills": ["Python", "Go", "Kubernetes", "TensorFlow", "Google Cloud"],
+      "careerDomain": "Cloud Infrastructure & AI",
+      "location": "Bangalore",
+      "availability": true,
+      "menteesServed": 25
+    },
+    {
+      "id": "al_002",
+      "fullName": "Priya Menon",
+      "batchYear": 2022,
+      "branch": "Information Technology",
+      "currentCompany": "TechStartup XYZ",
+      "currentRole": "Full-Stack Developer",
+      "skills": ["JavaScript", "React", "Node.js", "React Native", "AWS"],
+      "careerDomain": "Web & Mobile Development",
+      "location": "Delhi NCR",
+      "availability": true,
+      "menteesServed": 10
+    },
+    {
+      "id": "al_003",
+      "fullName": "Vikram Patel",
+      "batchYear": 2021,
+      "branch": "Computer Science",
+      "currentCompany": "DeepTech Labs",
+      "currentRole": "AI/ML Engineer",
+      "skills": ["Python", "TensorFlow", "PyTorch", "Data Engineering", "AWS SageMaker"],
+      "careerDomain": "Artificial Intelligence",
+      "location": "Bangalore",
+      "availability": true,
+      "menteesServed": 40
+    },
+    {
+      "id": "al_004",
+      "fullName": "Sneha Roy",
+      "batchYear": 2020,
+      "branch": "Electronics & Communication",
+      "currentCompany": "Deloitte",
+      "currentRole": "Consultant",
+      "skills": ["PowerPoint", "Data Analysis", "Project Management"],
+      "careerDomain": "Consulting & Business",
+      "location": "Delhi NCR",
+      "availability": false,
+      "menteesServed": 5
+    }
+  ],
+  "expectedMatchingResults": [
+    {
+      "studentId": "stu_001",
+      "studentName": "Alice Johnson",
+      "matches": [
+        {
+          "alumniId": "al_001",
+          "alumniName": "Rahul Sharma",
+          "score": 67,
+          "classification": "Good Match",
+          "matchingCriteria": {
+            "branch": true,
+            "skillsOverlap": "Python",
+            "location": "Different city",
+            "availability": true
+          }
+        },
+        {
+          "alumniId": "al_002",
+          "alumniName": "Priya Menon",
+          "score": 52,
+          "classification": "Fair Match",
+          "matchingCriteria": {
+            "branch": false,
+            "skillsOverlap": "Minimal",
+            "location": "Same city",
+            "availability": true
+          }
+        },
+        {
+          "alumniId": "al_003",
+          "alumniName": "Vikram Patel",
+          "score": 79,
+          "classification": "Excellent Match",
+          "matchingCriteria": {
+            "branch": true,
+            "skillsOverlap": "Python, TensorFlow",
+            "location": "Different city",
+            "availability": true
+          }
+        },
+        {
+          "alumniId": "al_004",
+          "alumniName": "Sneha Roy",
+          "score": 15,
+          "classification": "Low Match",
+          "matchingCriteria": {
+            "branch": false,
+            "skillsOverlap": "None",
+            "location": "Same city",
+            "availability": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "stu_002",
+      "studentName": "Bob Patel",
+      "matches": [
+        {
+          "alumniId": "al_001",
+          "alumniName": "Rahul Sharma",
+          "score": 45,
+          "classification": "Fair Match",
+          "matchingCriteria": {
+            "branch": false,
+            "skillsOverlap": "None",
+            "location": "Different city",
+            "availability": true
+          }
+        },
+        {
+          "alumniId": "al_002",
+          "alumniName": "Priya Menon",
+          "score": 52,
+          "classification": "Fair Match",
+          "matchingCriteria": {
+            "branch": true,
+            "skillsOverlap": "Minimal (Java vs JS)",
+            "location": "Different city",
+            "availability": true
+          }
+        },
+        {
+          "alumniId": "al_003",
+          "alumniName": "Vikram Patel",
+          "score": 38,
+          "classification": "Low Match",
+          "matchingCriteria": {
+            "branch": false,
+            "skillsOverlap": "None",
+            "location": "Different city",
+            "availability": true
+          }
+        },
+        {
+          "alumniId": "al_004",
+          "alumniName": "Sneha Roy",
+          "score": 25,
+          "classification": "Low Match",
+          "matchingCriteria": {
+            "branch": false,
+            "skillsOverlap": "None",
+            "location": "Same city",
+            "availability": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "stu_003",
+      "studentName": "Charlie Singh",
+      "matches": [
+        {
+          "alumniId": "al_001",
+          "alumniName": "Rahul Sharma",
+          "score": 55,
+          "classification": "Fair Match",
+          "matchingCriteria": {
+            "branch": true,
+            "skillsOverlap": "Python",
+            "location": "Different city",
+            "availability": true
+          }
+        },
+        {
+          "alumniId": "al_002",
+          "alumniName": "Priya Menon",
+          "score": 42,
+          "classification": "Fair Match",
+          "matchingCriteria": {
+            "branch": false,
+            "skillsOverlap": "None",
+            "location": "Different city",
+            "availability": true
+          }
+        },
+        {
+          "alumniId": "al_003",
+          "alumniName": "Vikram Patel",
+          "score": 85,
+          "classification": "Excellent Match",
+          "matchingCriteria": {
+            "branch": true,
+            "skillsOverlap": "Python, TensorFlow, PyTorch (100%)",
+            "location": "Different city",
+            "availability": true
+          }
+        },
+        {
+          "alumniId": "al_004",
+          "alumniName": "Sneha Roy",
+          "score": 20,
+          "classification": "Low Match",
+          "matchingCriteria": {
+            "branch": false,
+            "skillsOverlap": "None",
+            "location": "Different city",
+            "availability": false
+          }
+        }
+      ]
+    }
+  ],
+  "matchingCriteriaWeights": {
+    "branch": 25,
+    "graduationYear": 20,
+    "skillsOverlap": 25,
+    "careerDomain": 15,
+    "location": 10,
+    "availability": 5
+  },
+  "totalProfiles": {
+    "students": 3,
+    "alumni": 4
+  }
+}
