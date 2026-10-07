@@ -9,7 +9,7 @@ const router = express.Router();
 // Register user
 router.post("/register", async (req, res) => {
   try {
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password, role } = req.body;
 
     // Check required fields
     if (!fullName || !email || !password) {
@@ -17,6 +17,11 @@ router.post("/register", async (req, res) => {
         message: "All fields are required",
       });
     }
+    if (!role || !["student", "alumni"].includes(role)) {
+    return res.status(400).json({
+      message: "Role must be either student or alumni",
+    });
+  }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -31,10 +36,11 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = await User.create({
+   const user = await User.create({
       fullName,
       email,
       password: hashedPassword,
+      role,
     });
 
     // Send response
@@ -129,6 +135,7 @@ router.get("/me", authMiddleware, async (req, res) => {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
