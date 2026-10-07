@@ -3,6 +3,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const jobRoutes = require("./routes/jobRoutes");
+
 
 require("dotenv").config();
 
@@ -14,6 +16,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/jobs", jobRoutes);
 
 // Test route
 
