@@ -1,16 +1,38 @@
  // src/pages/Register.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserPlus, User, Mail, KeyRound, Eye, EyeOff } from "lucide-react";
+import {
+  UserPlus,
+  User,
+  Mail,
+  KeyRound,
+  Eye,
+  EyeOff,
+  GraduationCap,
+  ChevronDown,
+} from "lucide-react";
 import Logo from "../components/Logo";
 import GoogleButton from "../components/GoogleButton";
 import { useAuth } from "../context/AuthContext";
 
+// IMPORTANT: the `value` of each option must exactly match what your backend
+// expects (same spelling and letter case as the role enum in the server's
+// User model / register validation). Change these if your backend differs.
+const ROLE_OPTIONS = [
+  { value: "student", label: "Student" },
+  { value: "alumni", label: "Alumni" },
+];
+
 export default function Register() {
   const navigate = useNavigate();
-  const { register } = useAuth(); // expects register(fullName, email, password) -> Promise
+  const { register } = useAuth(); // expects register(fullName, email, password, role) -> Promise
 
-  const [form, setForm] = useState({ fullName: "", email: "", password: "" });
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    role: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,9 +45,15 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!form.role) {
+      setError("Please select your role.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await register(form.fullName, form.email, form.password);
+      await register(form.fullName, form.email, form.password, form.role);
       navigate("/dashboard");
     } catch (err) {
       setError(err?.response?.data?.message || "Could not create your account.");
@@ -35,8 +63,17 @@ export default function Register() {
   };
 
   const handleGoogleSignup = () => {
+    setError("");
+    if (!form.role) {
+      setError("Please select your role before signing up with Google.");
+      return;
+    }
     setGoogleLoading(true);
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+    // The role is passed as a query param. Your backend's /auth/google route
+    // needs to read it (e.g. via the OAuth `state` param) to save it for new users.
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?role=${encodeURIComponent(
+      form.role
+    )}`;
   };
 
   return (
@@ -90,7 +127,10 @@ export default function Register() {
           </div>
 
           {error && (
-            <div className="mb-4 rounded-xl border border-[#ba1a1a]/30 bg-[#ffdad6]/40 px-3.5 py-2.5 text-sm text-[#93000a]">
+            <div
+              role="alert"
+              className="mb-4 rounded-xl border border-[#ba1a1a]/30 bg-[#ffdad6]/40 px-3.5 py-2.5 text-sm text-[#93000a]"
+            >
               {error}
             </div>
           )}
@@ -138,6 +178,40 @@ export default function Register() {
                   onChange={handleChange}
                   className="w-full h-11 pl-10 pr-3.5 bg-white border border-[#c6c6cd] rounded-xl text-[#0b1c30] text-sm placeholder:text-[#76777d]/70 outline-none focus:border-[#0051d5] focus:ring-4 focus:ring-[#0051d5]/15 transition-shadow"
                 />
+              </div>
+            </div>
+
+            {/* Role */}
+            <div>
+              <label className="block text-sm font-semibold text-[#0b1c30] mb-1.5" htmlFor="role">
+                I am a
+              </label>
+              <div className="relative rounded-xl">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#76777d]">
+                  <GraduationCap size={18} />
+                </div>
+                <select
+                  id="role"
+                  name="role"
+                  required
+                  value={form.role}
+                  onChange={handleChange}
+                  className={`w-full h-11 pl-10 pr-10 appearance-none bg-white border border-[#c6c6cd] rounded-xl text-sm outline-none focus:border-[#0051d5] focus:ring-4 focus:ring-[#0051d5]/15 transition-shadow cursor-pointer ${
+                    form.role ? "text-[#0b1c30]" : "text-[#76777d]/70"
+                  }`}
+                >
+                  <option value="" disabled>
+                    Select your role
+                  </option>
+                  {ROLE_OPTIONS.map((r) => (
+                    <option key={r.value} value={r.value} className="text-[#0b1c30]">
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-[#76777d]">
+                  <ChevronDown size={18} />
+                </div>
               </div>
             </div>
 
