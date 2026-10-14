@@ -43,15 +43,26 @@ router.post("/register", async (req, res) => {
       role,
     });
 
-    // Send response
-    res.status(201).json({
-      message: "User registered successfully",
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-      },
-    });
+    // Create JWT
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+
+// Send response
+return res.status(201).json({
+  message: "User registered successfully",
+  token,
+  user: {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
+  },
+});
+
   } catch (error) {
     console.error("Registration error:", error.message);
 
@@ -93,22 +104,25 @@ router.post("/login", async (req, res) => {
         message: "Invalid email or password",
       });
     }
-
+    
     // Create JWT
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+const token = jwt.sign(
+  { userId: user._id },
+  process.env.JWT_SECRET,
+  { expiresIn: "1d" }
+);
+
+  
 
     res.status(200).json({
       message: "Login successful",
       token,
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-      },
+     user: {
+  id: user._id,
+  fullName: user.fullName,
+  email: user.email,
+  role: user.role,
+},
     });
   } catch (error) {
     console.error("Login error:", error.message);

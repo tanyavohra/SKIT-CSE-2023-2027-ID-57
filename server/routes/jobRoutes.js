@@ -6,7 +6,7 @@ const alumniOnly = require("../middleware/roleMiddleware");
 const router = express.Router();
 
 // Create a new job opportunity
-router.post("/", authMiddleware, alumniOnly, async (req, res) => {
+router.post("/", authMiddleware, alumniOnly, async (req, res) => {t
   try {
     const {
       title,

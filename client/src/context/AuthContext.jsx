@@ -43,13 +43,25 @@ export function AuthProvider({ children }) {
   };
 
   // Matches the call in Register.jsx: register(fullName, email, password)
-  const register = async (fullName, email, password) => {
-    const { token, user: newUser } = await registerUser(fullName, email, password);
+
+
+const register = async (fullName, email, password, role) => {
+  const { token, user: newUser } = await registerUser(
+    fullName,
+    email,
+    password,
+    role
+  );
+
+  if (token) {
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(newUser));
-    setUser(newUser);
-    return newUser;
-  };
+  }
+
+  localStorage.setItem("user", JSON.stringify(newUser));
+  setUser(newUser);
+  return newUser;
+};
+
 
   const logout = async () => {
     try {
