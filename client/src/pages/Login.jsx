@@ -38,7 +38,7 @@ export default function Login() {
   const handleGoogleLogin = () => {
     setGoogleLoading(true);
     // Wire this up to your Google OAuth flow (e.g. redirect to backend /auth/google)
-    window.location.href = "/api/auth/google";
+    window.location.href =  `${import.meta.env.VITE_API_URL}/auth/google`;
   };
 
   return (
