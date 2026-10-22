@@ -5,12 +5,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Bell, ChevronDown, Home, LogOut, User } from "lucide-react";
+import { Bell, BriefcaseBusiness, ChevronDown, Home, LogOut, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/alumni-connect-logo.png";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Community", icon: Home },
+  { to: "/career-guidance", label: "Career AI", icon: BriefcaseBusiness },
   { to: "/mentorship", label: "Mentorship" },
   { to: "/events", label: "Events & Chapters" },
   { to: "/directory", label: "Directory" },

@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ComingSoon from "./pages/ComingSoon";
+import CareerGuidance from "./pages/CareerGuidance";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
             }
           >
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/career-guidance" element={<CareerGuidance />} />
             <Route path="/mentorship" element={<ComingSoon title="Mentorship" />} />
             <Route path="/events" element={<ComingSoon title="Events & Chapters" />} />
             <Route path="/directory" element={<ComingSoon title="Directory" />} />
