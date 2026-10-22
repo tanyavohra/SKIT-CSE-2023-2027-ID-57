@@ -123,7 +123,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     if not token:
         raise HTTPException(status_code=503, detail="Hugging Face inference is not configured.")
 
-    model = os.getenv("HF_MODEL", "deepseek-ai/DeepSeek-V4.1-Flash-1017:novita")
+    model = os.getenv("HF_MODEL", "Qwen/Qwen3-4B-Instruct-2507:nscale")
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     messages.extend(
         {"role": message.role, "content": message.content.strip()}
