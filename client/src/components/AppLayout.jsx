@@ -1,16 +1,13 @@
-// src/components/AppLayout.jsx
-//
-// Shared shell for every page shown after login: sticky header (logo, working
-// nav, notifications, profile menu) + footer. Pages render inside <Outlet />.
-
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Bell, ChevronDown, Home, LogOut, User } from "lucide-react";
+import { Bell, BriefcaseBusiness, ChevronDown, Home, LogOut, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/alumni-connect-logo.png";
+import { resolveImageUrl } from "../utils/profileFields";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Community", icon: Home },
+  { to: "/career-guidance", label: "Career AI", icon: BriefcaseBusiness },
   { to: "/mentorship", label: "Mentorship" },
   { to: "/events", label: "Events & Chapters" },
   { to: "/directory", label: "Directory" },
@@ -84,9 +81,17 @@ function ProfileMenu() {
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-1.5 pl-1.5 pr-2 py-1.5 rounded-lg border border-[#c6c6cd]/40 hover:border-[#c6c6cd] hover:bg-[#eff4ff] transition-all active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-[#0051d5]/20"
       >
-        <span className="w-8 h-8 rounded-md bg-[#131b2e] text-white flex items-center justify-center text-xs font-semibold">
-          {initials || <User size={16} />}
-        </span>
+        {user?.profilePicture ? (
+          <img
+            src={resolveImageUrl(user.profilePicture)}
+            alt=""
+            className="w-8 h-8 rounded-md object-cover"
+          />
+        ) : (
+          <span className="w-8 h-8 rounded-md bg-[#131b2e] text-white flex items-center justify-center text-xs font-semibold">
+            {initials || <User size={16} />}
+          </span>
+        )}
         <ChevronDown
           size={18}
           className={`text-[#45464d] transition-transform ${open ? "rotate-180" : ""}`}
