@@ -17,7 +17,16 @@ export function AuthProvider({ children }) {
     }
 
     getCurrentUser()
-      .then((data) => setUser(data.user))
+      .then((data) => {
+        // /auth/me doesn't return the profile picture, so keep the cached one.
+        let cachedPicture = "";
+        try {
+          cachedPicture = JSON.parse(localStorage.getItem("user") || "{}").profilePicture || "";
+        } catch {
+          // ignore a corrupted cache
+        }
+        setUser({ ...data.user, profilePicture: data.user.profilePicture ?? cachedPicture });
+      })
       .catch(() => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -63,6 +72,17 @@ const register = async (fullName, email, password, role) => {
 };
 
 
+  // Merge changes (name, profile picture, ...) into the logged-in user and the
+  // cached copy, so the header updates right after a profile edit.
+  const updateUser = (patch) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...patch };
+      localStorage.setItem("user", JSON.stringify(next));
+      return next;
+    });
+  };
+
   const logout = async () => {
     try {
       await logoutUser();
@@ -76,7 +96,7 @@ const register = async (fullName, email, password, role) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
