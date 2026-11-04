@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import ComingSoon from "./pages/ComingSoon";
 import CareerGuidance from "./pages/CareerGuidance";
 import Profile from "./pages/Profile";
+import Directory from "./pages/Directory";
 
 export default function App() {
   return (
@@ -29,7 +30,7 @@ export default function App() {
             <Route path="/career-guidance" element={<CareerGuidance />} />
             <Route path="/mentorship" element={<ComingSoon title="Mentorship" />} />
             <Route path="/events" element={<ComingSoon title="Events & Chapters" />} />
-            <Route path="/directory" element={<ComingSoon title="Directory" />} />
+            <Route path="/directory" element={<Directory />} />
             <Route path="/alma-mater" element={<ComingSoon title="Alma Mater" />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:id" element={<Profile />} />
