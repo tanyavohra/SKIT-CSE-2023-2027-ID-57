@@ -4,6 +4,7 @@ import { Bell, BriefcaseBusiness, ChevronDown, Home, LogOut, User } from "lucide
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/alumni-connect-logo.png";
 import { resolveImageUrl } from "../utils/profileFields";
+import SearchBar from "./SearchBar";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Community", icon: Home },
@@ -177,6 +178,13 @@ export default function AppLayout() {
               <Bell size={20} />
             </Link>
             <ProfileMenu />
+          </div>
+        </div>
+
+        {/* Global people search: AppLayout only wraps logged-in pages, so it never shows on Login/Register */}
+        <div className="border-t border-[#c6c6cd]/30">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-2">
+            <SearchBar />
           </div>
         </div>
 
