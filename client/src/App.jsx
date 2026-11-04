@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ComingSoon from "./pages/ComingSoon";
 import CareerGuidance from "./pages/CareerGuidance";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -30,7 +31,10 @@ export default function App() {
             <Route path="/events" element={<ComingSoon title="Events & Chapters" />} />
             <Route path="/directory" element={<ComingSoon title="Directory" />} />
             <Route path="/alma-mater" element={<ComingSoon title="Alma Mater" />} />
-            <Route path="/profile" element={<ComingSoon title="My Profile" />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/messages" element={<ComingSoon title="Messages" />} />
+            <Route path="/messages/:id" element={<ComingSoon title="Messages" />} />
             <Route path="/notifications" element={<ComingSoon title="Notifications" />} />
           </Route>
 

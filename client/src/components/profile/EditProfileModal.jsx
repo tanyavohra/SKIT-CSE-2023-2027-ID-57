@@ -297,7 +297,7 @@ export default function EditProfileModal({ open, role, user, profile, saving, er
     };
   }, [open, saving, onClose]);
 
-  if (!open) return null;
+  if (!open || Object.keys(form).length === 0) return null;
 
   const fields = getFields(role);
   const groups = [];
