@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Profile = require("../models/Profile");
 const authMiddleware = require("../middleware/authMiddleware");
 const User = require("../models/User");
@@ -6,15 +7,36 @@ const User = require("../models/User");
 const router = express.Router();
 
 
+/* ------------------------------ Search helpers ------------------------------ */
+
+const MAX_FILTER_LENGTH = 100;
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const toRegex = (value) => new RegExp(escapeRegex(value), "i");
+const readParam = (value) => (typeof value === "string" ? value.trim() : "");
+
 /* GET /api/profile/directory
-   Browse and search alumni profiles
+   Search people by name and narrow them down like LinkedIn.
+
+   Query params (all optional):
+     search     free text: name, company, role, city, branch, college, skills
+     education  matches college or branch
+     company    matches current company
+     city       matches location
+     role       alumni (default) | student | all
+     page, limit
 */
 router.get("/directory", authMiddleware, async (req, res) => {
   try {
-    const search = (req.query.search || "").trim();
+    const search = readParam(req.query.search);
+    const education = readParam(req.query.education);
+    const company = readParam(req.query.company);
+    const city = readParam(req.query.city);
+    const role = ["alumni", "student", "all"].includes(req.query.role)
+      ? req.query.role
+      : "alumni";
 
     // Prevent excessively long search queries
-    if (search.length > 100) {
+    if ([search, education, company, city].some((v) => v.length > MAX_FILTER_LENGTH)) {
       return res.status(400).json({
         message: "Search query is too long",
       });
@@ -27,51 +49,50 @@ router.get("/directory", authMiddleware, async (req, res) => {
       Math.max(1, parseInt(req.query.limit, 10) || 10)
     );
 
-    // Escape special regex characters in user input
-    const escapedSearch = search.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      "\\$&"
-    );
+    // Who can appear in the results (never the person searching)
+    const userFilter = { _id: { $ne: req.userId } };
+    if (role !== "all") userFilter.role = role;
 
-    const regex = new RegExp(escapedSearch, "i");
+    const users = await User.find(userFilter).select("_id");
+    const conditions = [{ userId: { $in: users.map((user) => user._id) } }];
 
-    // Find users whose role is alumni
-    const alumniFilter = { role: "alumni" };
-
-    // Match alumni by name when a search term is provided
-    const matchingAlumni = search
-      ? await User.find({
-          ...alumniFilter,
-          fullName: regex,
-        }).select("_id")
-      : [];
-
-    // Get all alumni IDs for the directory
-    const alumniUsers = await User.find(alumniFilter).select("_id");
-    const alumniIds = alumniUsers.map((user) => user._id);
-
-    const profileFilter = {
-      userId: { $in: alumniIds },
-    };
-
+    // Free-text search: name (on the User) or any searchable profile field
     if (search) {
-      profileFilter.$or = [
-        { userId: { $in: matchingAlumni.map((user) => user._id) } },
-        { currentCompany: regex },
-        { currentRole: regex },
-        { location: regex },
-        { branch: regex },
-        { college: regex },
-        { skills: regex },
-      ];
+      const regex = toRegex(search);
+      const matchingByName = await User.find({
+        ...userFilter,
+        fullName: regex,
+      }).select("_id");
+
+      conditions.push({
+        $or: [
+          { userId: { $in: matchingByName.map((user) => user._id) } },
+          { currentCompany: regex },
+          { currentRole: regex },
+          { location: regex },
+          { branch: regex },
+          { college: regex },
+          { skills: regex },
+        ],
+      });
     }
+
+    // Filters (each one narrows the results further)
+    if (education) {
+      const regex = toRegex(education);
+      conditions.push({ $or: [{ college: regex }, { branch: regex }] });
+    }
+    if (company) conditions.push({ currentCompany: toRegex(company) });
+    if (city) conditions.push({ location: toRegex(city) });
+
+    const profileFilter = { $and: conditions };
 
     const [profiles, total] = await Promise.all([
       Profile.find(profileFilter)
         .select(
           "userId bio graduationYear branch college currentCompany currentRole location skills linkedin profilePicture"
         )
-        .populate("userId", "fullName")
+        .populate("userId", "fullName role")
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
@@ -96,6 +117,34 @@ router.get("/directory", authMiddleware, async (req, res) => {
     return res.status(500).json({
       message: "Server error while fetching alumni directory",
     });
+  }
+});
+
+/* GET /api/profile/user/:id
+   Another person's public profile -> { user: { id, fullName, role }, profile }
+*/
+router.get("/user/:id", authMiddleware, async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    const user = await User.findById(req.params.id).select("fullName role");
+    if (!user) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    const profile = await Profile.findOne({ userId: user._id })
+      .select("-phone")
+      .lean();
+
+    return res.status(200).json({
+      user: { id: user._id, fullName: user.fullName, role: user.role },
+      profile: profile || {},
+    });
+  } catch (error) {
+    console.error("Get user profile error:", error.message);
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
