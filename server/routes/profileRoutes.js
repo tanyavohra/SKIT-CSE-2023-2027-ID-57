@@ -206,7 +206,7 @@ router.put("/", authMiddleware, async (req, res) => {
         profilePicture,
       },
       {
-        new: true,
+        returnDocument: "after",
         upsert: true,
         runValidators: true,
       }

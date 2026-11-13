@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from dotenv import load_dotenv
 
 
-HF_CHAT_COMPLETIONS_URL = "https://router.huggingface.co/v1/chat/completions"
+OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions"
 load_dotenv()
 MAX_MESSAGES = 8
 MAX_MESSAGE_LENGTH = 1200
@@ -119,11 +119,13 @@ async def chat(request: ChatRequest) -> ChatResponse:
     if immediate_reply:
         return ChatResponse(reply=immediate_reply)
 
-    token = os.getenv("HF_TOKEN", "")
+    token = os.getenv("OPENROUTER_API_KEY", "")
     if not token:
-        raise HTTPException(status_code=503, detail="Hugging Face inference is not configured.")
+        raise HTTPException(status_code=503, detail="OpenRouter is not configured.")
 
-    model = os.getenv("HF_MODEL", "Qwen/Qwen3-4B-Instruct-2507:nscale")
+    model = os.getenv("OPENROUTER_MODEL", "")
+    if not model:
+        raise HTTPException(status_code=503, detail="OpenRouter model is not configured.")
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     messages.extend(
         {"role": message.role, "content": message.content.strip()}
@@ -133,7 +135,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(25.0, connect=5.0)) as client:
             response = await client.post(
-                HF_CHAT_COMPLETIONS_URL,
+                OPENROUTER_CHAT_COMPLETIONS_URL,
                 headers={"Authorization": f"Bearer {token}"},
                 json={
                     "model": model,

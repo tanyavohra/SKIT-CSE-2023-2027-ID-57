@@ -53,7 +53,7 @@ router.post("/chat", authMiddleware, async (req, res) => {
           $inc: { count: 1 },
           $setOnInsert: { expiresAt: new Date(resetAt + WINDOW_MS) },
         },
-        { new: true, upsert: true, setDefaultsOnInsert: true }
+        { returnDocument: "after", upsert: true, setDefaultsOnInsert: true }
       );
     } catch (error) {
       // Concurrent first requests can race to create the same unique bucket.
@@ -61,7 +61,7 @@ router.post("/chat", authMiddleware, async (req, res) => {
       usage = await ChatRateLimit.findOneAndUpdate(
         { userId: req.userId, windowStart },
         { $inc: { count: 1 } },
-        { new: true }
+        { returnDocument: "after" }
       );
     }
 
