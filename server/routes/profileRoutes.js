@@ -88,10 +88,11 @@ router.get("/directory", authMiddleware, async (req, res) => {
     const profileFilter = { $and: conditions };
 
     const [profiles, total] = await Promise.all([
-      Profile.find(profileFilter)
-        .select(
-          "userId bio graduationYear branch college currentCompany currentRole location skills linkedin profilePicture"
-        )
+      Profile.find(profileFilter)  
+.select(
+  "userId bio graduationYear branch college currentCompany currentRole location skills interests careerDomain alumniType isOpenToMentoring yearsOfExperience linkedin profilePicture"
+)
+
         .populate("userId", "fullName role")
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
@@ -149,33 +150,42 @@ router.get("/user/:id", authMiddleware, async (req, res) => {
 });
 
 
-// Get current user's profile
+
+// Get current user's profile and account information
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const profile = await Profile.findOne({ userId: req.userId });
+    const [user, profile] = await Promise.all([
+      User.findById(req.userId).select("fullName email role"),
+      Profile.findOne({ userId: req.userId }),
+    ]);
 
-    if (!profile) {
+    if (!user) {
       return res.status(404).json({
-        message: "Profile not found",
+        message: "User not found",
       });
     }
 
-    res.status(200).json({
-      profile,
+    return res.status(200).json({
+      user,
+      profile: profile || {},
     });
   } catch (error) {
     console.error("Get profile error:", error.message);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Server error",
     });
   }
 });
 
+
+// Create or update current user's profile
+
 // Create or update current user's profile
 router.put("/", authMiddleware, async (req, res) => {
   try {
     const {
+      fullName,
       phone,
       bio,
       graduationYear,
@@ -185,44 +195,150 @@ router.put("/", authMiddleware, async (req, res) => {
       currentRole,
       location,
       skills,
+      interests,
       linkedin,
       profilePicture,
+      experienceLevel,
+      jobPreference,
+      projects,
+      resumeLink,
+      cgpa,
+      backlogs,
+      certifications,
+      achievements,
+      extracurricularActivities,
+      careerDomain,
+      alumniType,
+      menteesServed,
+      isOpenToMentoring,
+      yearsOfExperience,
+      higherEducation,
+      previousBranches,
+      foundedStartups,
+      patents,
+      publications,
+      awards,
     } = req.body;
 
+    // Validate updated account name
+    if (
+      Object.prototype.hasOwnProperty.call(req.body, "fullName") &&
+      (typeof fullName !== "string" || !fullName.trim())
+    ) {
+      return res.status(400).json({
+        message: "Full name cannot be empty",
+      });
+    }
+
+    
+    const allowedFields = [
+      "phone",
+      "bio",
+      "graduationYear",
+      "branch",
+      "college",
+      "currentCompany",
+      "currentRole",
+      "location",
+      "skills",
+      "interests",
+      "linkedin",
+      "profilePicture",
+      "experienceLevel",
+      "jobPreference",
+      "projects",
+      "resumeLink",
+      "cgpa",
+      "backlogs",
+      "certifications",
+      "achievements",
+      "extracurricularActivities",
+      "careerDomain",
+      "alumniType",
+      "menteesServed",
+      "isOpenToMentoring",
+      "yearsOfExperience",
+      "higherEducation",
+      "previousBranches",
+      "foundedStartups",
+      "patents",
+      "publications",
+      "awards",
+    ];
+
+    const profileUpdates = {};
+
+    allowedFields.forEach((field) => {
+      if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+        profileUpdates[field] = req.body[field];
+      }
+    });
+
+    // Save profile information
     const profile = await Profile.findOneAndUpdate(
       { userId: req.userId },
       {
-        userId: req.userId,
-        phone,
-        bio,
-        graduationYear,
-        branch,
-        college,
-        currentCompany,
-        currentRole,
-        location,
-        skills,
-        linkedin,
-        profilePicture,
+        $set: {
+          ...profileUpdates,
+          userId: req.userId,
+        },
       },
       {
-        returnDocument: "after",
+        new: true,
         upsert: true,
         runValidators: true,
+        setDefaultsOnInsert: true,
       }
     );
 
-    res.status(200).json({
+    // Update account name in User collection
+    let user;
+
+    if (Object.prototype.hasOwnProperty.call(req.body, "fullName")) {
+      user = await User.findByIdAndUpdate(
+        req.userId,
+        {
+          $set: {
+            fullName: fullName.trim(),
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      ).select("fullName email role");
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+    } else {
+      user = await User.findById(req.userId).select(
+        "fullName email role"
+      );
+    }
+
+    return res.status(200).json({
       message: "Profile updated successfully",
+      user,
       profile,
     });
   } catch (error) {
-    console.error("Update profile error:", error.message);
+    console.error("Update profile error:", error);
 
-    res.status(500).json({
-      message: "Server error",
+    return res.status(
+      error.name === "ValidationError" || error.name === "CastError"
+        ? 400
+        : 500
+    ).json({
+      message:
+        error.name === "ValidationError" || error.name === "CastError"
+          ? error.message
+          : "Server error while updating profile",
     });
   }
 });
+
 
 module.exports = router;

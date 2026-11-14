@@ -304,52 +304,103 @@ export function resolveImageUrl(url) {
 
 /* --------------------- Form <-> profile conversion --------------------- */
 
+
 export function profileToForm(role, user, profile = {}) {
   const form = {};
+
+  const FIELD_MAP = {
+    resumeUrl: "resumeLink",
+    backlogCount: "backlogs",
+    extraCurricular: "extracurricularActivities",
+    availability: "isOpenToMentoring",
+  };
+
   for (const f of getFields(role)) {
-    const value = f.key === "fullName" ? user?.fullName : profile?.[f.key];
+    const backendKey = FIELD_MAP[f.key] || f.key;
+
+    const value =
+      f.key === "fullName"
+        ? user?.fullName
+        : profile?.[backendKey];
+
     switch (f.type) {
       case "tags":
-        form[f.key] = Array.isArray(value) ? [...value] : [];
+        form[f.key] = Array.isArray(value)
+          ? [...value]
+          : [];
         break;
+
       case "number":
-        form[f.key] = value === null || value === undefined ? "" : String(value);
+        form[f.key] =
+          value === null || value === undefined
+            ? ""
+            : String(value);
         break;
+
       case "boolean":
-        form[f.key] = value === null || value === undefined ? Boolean(f.defaultValue) : Boolean(value);
+        form[f.key] =
+          value === null || value === undefined
+            ? Boolean(f.defaultValue)
+            : Boolean(value);
         break;
+
       case "projects":
         form[f.key] = Array.isArray(value)
           ? value.map((p) => ({
               name: p?.name || "",
               description: p?.description || "",
-              tech: Array.isArray(p?.tech) ? p.tech.join(", ") : p?.tech || "",
+              tech: Array.isArray(p?.tech)
+                ? p.tech.join(", ")
+                : p?.tech || "",
             }))
           : [];
         break;
+
       default:
         form[f.key] = value ?? "";
     }
   }
+
   return form;
 }
 
+
+
 export function formToPayload(role, form) {
   const payload = {};
+
+  // Map frontend field names to backend/MongoDB field names
+  const FIELD_MAP = {
+    resumeUrl: "resumeLink",
+    backlogCount: "backlogs",
+    extraCurricular: "extracurricularActivities",
+    availability: "isOpenToMentoring",
+  };
+
   for (const f of getFields(role)) {
     const value = form[f.key];
+    const backendKey = FIELD_MAP[f.key] || f.key;
+
     switch (f.type) {
       case "tags":
-        payload[f.key] = (value || []).map((t) => t.trim()).filter(Boolean);
+        payload[backendKey] = (value || [])
+          .map((t) => t.trim())
+          .filter(Boolean);
         break;
+
       case "number":
-        payload[f.key] = value === "" || value === null || value === undefined ? null : Number(value);
+        payload[backendKey] =
+          value === "" || value === null || value === undefined
+            ? null
+            : Number(value);
         break;
+
       case "boolean":
-        payload[f.key] = Boolean(value);
+        payload[backendKey] = Boolean(value);
         break;
+
       case "projects":
-        payload[f.key] = (value || [])
+        payload[backendKey] = (value || [])
           .filter((p) => p.name.trim())
           .map((p) => ({
             name: p.name.trim(),
@@ -360,12 +411,16 @@ export function formToPayload(role, form) {
               .filter(Boolean),
           }));
         break;
+
       default:
-        payload[f.key] = typeof value === "string" ? value.trim() : value;
+        payload[backendKey] =
+          typeof value === "string" ? value.trim() : value;
     }
   }
+
   return payload;
 }
+
 
 export function validateForm(role, form) {
   const errors = {};
